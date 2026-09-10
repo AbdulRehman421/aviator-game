@@ -54,10 +54,27 @@ const crashPointFromSeeds = (serverSeed, clientSeeds) =>
 
 // ------------------------------------------------------------------ firebase
 
-const app = admin.initializeApp({
-  credential: admin.credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-});
+// Initialize Firebase Admin with environment variables
+let app;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  // For production (Render, etc.) - use JSON from environment variable
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  app = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://aviator-91a24-default-rtdb.firebaseio.com',
+  });
+} else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  // For local development - use file path
+  app = admin.initializeApp({
+    credential: admin.credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS),
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://aviator-91a24-default-rtdb.firebaseio.com',
+  });
+} else {
+  // Fallback - use application default credentials
+  app = admin.initializeApp({
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://aviator-91a24-default-rtdb.firebaseio.com',
+  });
+}
 
 const db = admin.database(app);
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
