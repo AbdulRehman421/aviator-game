@@ -610,6 +610,30 @@ async function main() {
   await watchNewUsers();
   await watchDeposits();
   await game.start();
+  
+  // Start HTTP server for health checks (required by Render)
+  const http = require('http');
+  const PORT = process.env.PORT || 10000;
+  
+  const server = http.createServer((req, res) => {
+    if (req.url === '/health' || req.url === '/') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 'ok',
+        message: 'Aviator game server running',
+        instanceId: INSTANCE_ID,
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+      }));
+    } else {
+      res.writeHead(404);
+      res.end('Not found');
+    }
+  });
+  
+  server.listen(PORT, () => {
+    console.log(`HTTP server listening on port ${PORT}`);
+  });
 }
 
 process.on('unhandledRejection', (err) => {
