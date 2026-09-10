@@ -1,0 +1,73 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "profile": {
+          ".write": "auth != null && auth.uid == $uid && !newData.exists()",
+          ".validate": "newData.hasChildren(['displayName', 'email', 'createdAt'])"
+        },
+        "wallet": {
+          ".write": false,
+          "balance": { ".validate": true }
+        },
+        "bets": {
+          ".write": false,
+          ".read": "auth != null && auth.uid == $uid",
+          ".indexOn": ["time"]
+        },
+        "transactions": {
+          ".write": false,
+          ".read": "auth != null && auth.uid == $uid",
+          ".indexOn": ["at"]
+        }
+      }
+    },
+    "game": {
+      "current": { ".read": true,
+        ".write": false
+      },
+      "history": { 
+        ".read": true,
+        ".write": false
+      }
+    },
+    "rounds": {
+      ".read": false,
+      "$round": {
+        "bets": {
+          ".read": true,
+          "$key": {
+            ".write": "auth != null && $key.beginsWith(auth.uid + '_') && newData.exists()",
+            ".validate": "newData.hasChildren(['uid','name','slot','amount','status']) &&
+                           newData.child('uid').val() == auth.uid &&
+                           newData.child('amount').isNumber() &&
+                           newData.child('amount').val() >= 16 &&
+                           newData.child('amount').val() <= 300000 &&
+                           (!data.child('cashedOutAt').exists() || newData.child('cashedOutAt').val() == data.child('cashedOutAt').val()) &&
+                           (!data.child('payout').exists() || newData.child('payout').val() == data.child('payout').val())",
+            "status": {
+              ".validate": "(newData.val() == 'pending' && (!data.exists() || data.val() == 'rejected')) || newData.val() == data.val()"
+            },
+            "amount": {
+              ".validate": "!data.exists() || data.parent().child('status').val() == 'rejected' || newData.val() == data.val()"
+            },
+            "cashedOutAt": { ".validate": "data.exists() && newData.val() == data.val()" },
+            "payout": { ".validate": "data.exists() && newData.val() == data.val()" },
+            "cashOutRequested": { ".validate": "newData.isNumber()" },
+            "cancelRequested": { ".validate": "newData.isNumber()" }
+          }
+        }
+      }
+    },
+    "deposits": {
+      "$id": {
+        ".read": "auth != null && data.child('uid').val() == auth.uid",
+        ".write": "auth != null && (!data.exists() && newData.child('uid').val() == auth.uid)",
+        ".validate": "newData.hasChildren(['uid','amount','method','status','at']) &&
+                       newData.child('uid').val() == auth.uid &&
+                       newData.child('status').val() == 'pending'"
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18"
+  },
+  "hosting": {
+    "public": "server/public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "aviator-91a24",
+          "appId": "1:660440163753:android:b30d44dc000ff30f1390b8",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options_temp.dart": {
+          "projectId": "aviator-91a24",
+          "configurations": {
+            "android": "1:660440163753:android:b30d44dc000ff30f1390b8"
+          }
+        }
+      }
+    }
+  }
+}

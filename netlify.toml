@@ -1,0 +1,7 @@
+[build]
+  publish = "server/public"
+  
+[[redirects]]
+  from = "/*"
+  to = "/deposit.html"
+  status = 200
