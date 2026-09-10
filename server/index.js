@@ -56,7 +56,15 @@ const crashPointFromSeeds = (serverSeed, clientSeeds) =>
 
 // Initialize Firebase Admin with environment variables
 let app;
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+  // For production - use base64-encoded JSON
+  const serviceAccountJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8');
+  const serviceAccount = JSON.parse(serviceAccountJson);
+  app = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://aviator-91a24-default-rtdb.firebaseio.com',
+  });
+} else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   // For production (Render, etc.) - use JSON from environment variable
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   app = admin.initializeApp({
