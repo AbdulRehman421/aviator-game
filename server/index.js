@@ -611,24 +611,18 @@ async function acquireLock() {
   ref.onDisconnect().remove();
 }
 
-async function main() {
-  await acquireLock();
-  console.log(`Game server ${INSTANCE_ID} started`);
-  const game = new GameLoop();
-  await watchNewUsers();
-  await watchDeposits();
-  await game.start();
-  
-  // Start HTTP server for health checks (required by Render)
+let gameRunning = false;
+
+function startHttpServer() {
   const http = require('http');
   const PORT = process.env.PORT || 10000;
-  
+
   const server = http.createServer((req, res) => {
     if (req.url === '/health' || req.url === '/') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
-        status: 'ok',
-        message: 'Aviator game server running',
+        status: gameRunning ? 'ok' : 'starting',
+        message: 'Aviator game server',
         instanceId: INSTANCE_ID,
         uptime: process.uptime(),
         timestamp: new Date().toISOString()
@@ -638,10 +632,21 @@ async function main() {
       res.end('Not found');
     }
   });
-  
+
   server.listen(PORT, () => {
     console.log(`HTTP server listening on port ${PORT}`);
   });
+}
+
+async function main() {
+  startHttpServer();
+  await acquireLock();
+  console.log(`Game server ${INSTANCE_ID} started`);
+  const game = new GameLoop();
+  await watchNewUsers();
+  await watchDeposits();
+  gameRunning = true;
+  await game.start();
 }
 
 process.on('unhandledRejection', (err) => {
