@@ -53,6 +53,9 @@ class GameClient extends ChangeNotifier {
   int? _crashedAt;
   double? _crashPoint;
 
+  /// Server-published predicted multiplier for the current round.
+  double? prediction;
+
   int _serverOffsetMs = 0;
   bool connected = false;
 
@@ -210,6 +213,7 @@ class GameClient extends ChangeNotifier {
     _flightStartAt = asInt(m['flightStartAt']);
     _crashedAt = asInt(m['crashedAt']);
     _crashPoint = asDouble(m['crashPoint']);
+    prediction = asDouble(m['prediction']);
 
     if (tookOff) _resyncClock(_flightStartAt);
 

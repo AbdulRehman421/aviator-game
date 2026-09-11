@@ -42,6 +42,7 @@ class RoundResult {
     required this.endedAt,
     required this.totalBets,
     required this.totalWagered,
+    this.prediction,
   });
 
   factory RoundResult.fromMap(Map<String, dynamic> m) {
@@ -58,6 +59,7 @@ class RoundResult {
       endedAt: DateTime.fromMillisecondsSinceEpoch(asInt(m['endedAt']) ?? 0),
       totalBets: asInt(m['totalBets']) ?? 0,
       totalWagered: asDouble(m['totalWagered']) ?? 0,
+      prediction: asDouble(m['prediction']),
     );
   }
 
@@ -70,6 +72,11 @@ class RoundResult {
   final DateTime endedAt;
   final int totalBets;
   final double totalWagered;
+  final double? prediction;
+
+  /// True when the round reached the predicted multiplier.
+  bool get predictionHit =>
+      prediction != null && crashPoint >= prediction!;
 }
 
 /// A bet in the current round as stored at `rounds/{roundId}/bets/{uid}_{slot}`.

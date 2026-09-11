@@ -12,6 +12,7 @@ import 'widgets/bets_list.dart';
 import 'widgets/dialogs.dart';
 import 'widgets/flight_area.dart';
 import 'widgets/history_strip.dart';
+import 'widgets/prediction_banner.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key, required this.user, required this.auth});
@@ -99,6 +100,8 @@ class _GamePageState extends State<GamePage>
               children: [
                 _header(),
                 const SizedBox(height: 8),
+                PredictionBanner(engine: engine),
+                const SizedBox(height: 8),
                 HistoryStrip(engine: engine),
                 const SizedBox(height: 8),
                 Expanded(child: FlightArea(engine: engine, clock: _clock)),
@@ -128,6 +131,10 @@ class _GamePageState extends State<GamePage>
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: _header(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: PredictionBanner(engine: engine),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),

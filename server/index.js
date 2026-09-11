@@ -13,6 +13,12 @@ const HOUSE_EDGE_DIVISOR = 33;
 const BETTING_SECONDS = parseInt(process.env.BETTING_SECONDS || '5', 10);
 const CRASH_PAUSE_SECONDS = parseInt(process.env.CRASH_PAUSE_SECONDS || '3', 10);
 const SIGNUP_BONUS = parseFloat(process.env.SIGNUP_BONUS || '0');
+// Prediction shown to players before each round, as a fraction of the real
+// crash point (0.9 => always lands ~10% below the crash, so it always hits).
+const PREDICTION_RATIO = parseFloat(process.env.PREDICTION_RATIO || '0.9');
+
+const predictionFor = (crashPoint) =>
+  Math.max(1.01, Math.floor(crashPoint * PREDICTION_RATIO * 100) / 100);
 
 const E52 = 4503599627370496n;
 
@@ -210,6 +216,7 @@ class GameLoop {
       flightStartAt: null,
       crashedAt: null,
       crashPoint: null,
+      prediction: predictionFor(crashPoint),
     };
     this.secret = { serverSeed, combinedHash, crashPoint: round2(crashPoint) };
 
